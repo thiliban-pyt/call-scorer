@@ -147,40 +147,48 @@ function VrtCallContent() {
         }
       />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden bg-slate-50">
         {/* Left: Checklist (40%) */}
-        <div className="flex w-[40%] flex-col border-r border-slate-200 bg-slate-50">
-          <div className="border-b border-slate-200 bg-white px-4 py-3">
-            <div className="flex items-center gap-2">
-              <ListChecks className="h-4 w-4 text-slate-600" />
-              <h3 className="text-sm font-semibold text-slate-900">Checklist</h3>
+        <div className="flex w-[40%] flex-col border-r border-slate-200 bg-white">
+          <div className="border-b border-slate-200 bg-slate-50 px-5 py-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-900">
+                <ListChecks className="h-3.5 w-3.5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900">Points to Cover</h3>
+                <p className="text-xs text-slate-600">
+                  {completedCount}/{totalCount} completed
+                </p>
+              </div>
             </div>
-            <p className="mt-1 text-xs text-slate-500">
-              {completedCount}/{totalCount} completed
-            </p>
           </div>
           <ScrollArea className="flex-1">
-            <div className="space-y-2 p-3">
-              {checklist.map((item) => (
+            <div className="space-y-2 p-4">
+              {checklist.map((item, index) => (
                 <Card
                   key={item.id}
-                  className={`border p-2.5 transition-all ${
+                  className={`border p-3 transition-colors ${
                     item.completed
-                      ? "border-green-200 bg-green-50"
+                      ? "border-green-200 bg-green-50/50"
                       : "border-slate-200 bg-white"
                   }`}
                 >
-                  <div className="flex items-start gap-2">
+                  <div className="flex items-start gap-2.5">
                     {item.completed ? (
-                      <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-green-600" />
+                      <div className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-green-600">
+                        <CheckCircle2 className="h-3 w-3 text-white" />
+                      </div>
                     ) : (
-                      <Circle className="h-4 w-4 flex-shrink-0 text-slate-400" />
+                      <div className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-500">
+                        <span className="text-[9px] font-medium">{index + 1}</span>
+                      </div>
                     )}
                     <span
-                      className={`text-xs leading-relaxed ${
+                      className={`text-[13px] leading-relaxed ${
                         item.completed
-                          ? "text-green-700"
-                          : "text-slate-900"
+                          ? "text-green-900 font-medium"
+                          : "text-slate-700"
                       }`}
                     >
                       {item.text}
@@ -194,17 +202,22 @@ function VrtCallContent() {
 
         {/* Middle: Voucher (40%) */}
         <div className="flex w-[40%] flex-col border-r border-slate-200 bg-white">
-          <div className="border-b border-slate-200 px-4 py-3">
-            <div className="flex items-center gap-2">
-              <FileText className="h-4 w-4 text-slate-600" />
-              <h3 className="text-sm font-semibold text-slate-900">Voucher</h3>
+          <div className="border-b border-slate-200 bg-slate-50 px-5 py-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-900">
+                <FileText className="h-3.5 w-3.5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-slate-900">Travel Voucher</h3>
+                <p className="text-xs text-slate-600">Customer details & itinerary</p>
+              </div>
             </div>
           </div>
-          <div className="flex-1 p-4">
-            <iframe
-              src="https://plato-documents-bak.s3.ap-south-1.amazonaws.com/115715/final_voucher_115715.pdf?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIA4OK42ESOUT55CDPH%2F20260130%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20260130T195927Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Signature=92e16059e02ed5ee1dd450cf8cca85dafe73f775cebb28f7a792972cb8d5944c"
+          <div className="flex-1 p-5">
+            <embed
+              src="https://plato-documents-bak.s3.ap-south-1.amazonaws.com/115715/final_voucher_115715.pdf?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIA4OK42ESOUT55CDPH%2F20260130%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20260130T195927Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Signature=92e16059e02ed5ee1dd450cf8cca85dafe73f775cebb28f7a792972cb8d5944c#toolbar=0&navpanes=0&scrollbar=0"
+              type="application/pdf"
               className="h-full w-full rounded-lg border border-slate-200"
-              title="Voucher PDF"
             />
           </div>
         </div>
@@ -227,19 +240,22 @@ function VrtCallContent() {
               </div>
             </div>
           ) : (
-            <div className="flex flex-1 flex-col items-center justify-center bg-slate-50">
-              <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full border-2 border-slate-300 bg-white">
-                <Phone className="h-8 w-8 text-slate-400" />
+            <div className="flex flex-1 flex-col items-center justify-center bg-slate-50 p-6">
+              <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-lg border border-slate-200 bg-white">
+                <Phone className="h-8 w-8 text-slate-700" />
               </div>
-              <p className="mb-2 text-sm font-medium text-slate-900">
-                Ready to call {voucherDetails.customerName}
+              <p className="mb-2 text-center text-sm font-semibold text-slate-900">
+                Ready to call
               </p>
-              <p className="mb-4 text-xs text-slate-500">
-                Review the checklist and voucher before starting
+              <p className="mb-1 text-center text-sm text-slate-700">
+                {voucherDetails.customerName}
+              </p>
+              <p className="mb-6 text-center text-xs text-slate-500">
+                Review checklist & voucher before starting
               </p>
               <button
                 onClick={handleStartCall}
-                className="flex items-center gap-2 rounded-lg bg-slate-900 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-slate-800"
+                className="flex items-center gap-2 rounded-lg bg-slate-900 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-800"
               >
                 <Phone className="h-4 w-4" />
                 Start Call

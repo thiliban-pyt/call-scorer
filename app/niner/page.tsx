@@ -76,18 +76,18 @@ const CheckboxItem = ({
   onInternal: () => void;
   onCommunicate: () => void;
 }) => {
-  const [showDropdown, setShowDropdown] = React.useState(false);
-  const dropdownRef = React.useRef<HTMLDivElement>(null);
+  const [selectedAction, setSelectedAction] = React.useState<string>("");
 
-  React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowDropdown(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  const handleActionChange = (value: string) => {
+    setSelectedAction(value);
+    if (value === "na") {
+      onNotApplicableChange();
+    } else if (value === "internal") {
+      onInternal();
+    } else if (value === "communicate") {
+      onCommunicate();
+    }
+  };
 
   return (
     <div className="flex items-start gap-3 border-b border-slate-100 py-3 last:border-0">
@@ -101,47 +101,16 @@ const CheckboxItem = ({
       <span className={`flex-1 text-sm ${notApplicable ? 'text-slate-400 line-through' : 'text-slate-700'}`}>
         {text}
       </span>
-      <div className="relative" ref={dropdownRef}>
-        <button
-          onClick={() => setShowDropdown(!showDropdown)}
-          className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-        >
-          <Settings2 className="h-4 w-4" />
-        </button>
-        {showDropdown && (
-          <div className="absolute right-0 z-10 mt-1 w-40 rounded-md border border-slate-200 bg-white shadow-lg">
-            <button
-              onClick={() => {
-                onNotApplicableChange();
-                setShowDropdown(false);
-              }}
-              className="flex w-full items-center px-3 py-2 text-left text-sm hover:bg-slate-50"
-            >
-              <span className={notApplicable ? 'text-orange-600 font-medium' : 'text-slate-700'}>
-                {notApplicable ? '✓ N/A' : 'Mark N/A'}
-              </span>
-            </button>
-            <button
-              onClick={() => {
-                onInternal();
-                setShowDropdown(false);
-              }}
-              className="flex w-full items-center px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
-            >
-              Internal Note
-            </button>
-            <button
-              onClick={() => {
-                onCommunicate();
-                setShowDropdown(false);
-              }}
-              className="flex w-full items-center px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
-            >
-              Communicate
-            </button>
-          </div>
-        )}
-      </div>
+      <select
+        value={selectedAction}
+        onChange={(e) => handleActionChange(e.target.value)}
+        className="rounded border border-slate-300 px-2 py-1 text-xs text-slate-600 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
+      >
+        <option value="">Select Action</option>
+        <option value="na">Mark N/A</option>
+        <option value="internal">Internal Note</option>
+        <option value="communicate">Communicate</option>
+      </select>
     </div>
   );
 };

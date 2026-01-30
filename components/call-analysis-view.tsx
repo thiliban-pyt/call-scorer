@@ -17,6 +17,17 @@ export function CallAnalysisView({ analysis }: CallAnalysisViewProps) {
     analysis.compliance_score.percentage >= 70 ? "text-orange-600" :
     "text-red-600";
 
+  // Determine call quality based on compliance percentage
+  const getCallQuality = (percentage: number) => {
+    if (percentage >= 90) return "Excellent";
+    if (percentage >= 80) return "Very Good";
+    if (percentage >= 70) return "Good";
+    if (percentage >= 50) return "Fair";
+    return "Poor";
+  };
+
+  const callQuality = getCallQuality(analysis.compliance_score.percentage);
+
   return (
     <div className="space-y-5">
       {/* Header */}
@@ -57,7 +68,7 @@ export function CallAnalysisView({ analysis }: CallAnalysisViewProps) {
             </div>
             <div className="text-right">
               <div className="mb-1 text-xs font-medium text-slate-500">Call Quality</div>
-              <div className="text-lg font-semibold">{analysis.insights.call_quality}</div>
+              <div className="text-lg font-semibold">{callQuality}</div>
               <div className="mt-1 text-sm text-muted-foreground">
                 {analysis.insights.customer_sentiment} Sentiment
               </div>

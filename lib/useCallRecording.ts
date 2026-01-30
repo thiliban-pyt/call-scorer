@@ -173,6 +173,21 @@ export function useCallRecording({
       setError(null);
       isRecordingRef.current = true;
 
+      // Clear all previous transcript history files
+      try {
+        await fetch("/api/transcript-storage", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "clear",
+            callId: callId,
+          }),
+        });
+        console.log("[Recording] Cleared all transcript history files");
+      } catch (error) {
+        console.error("[Recording] Error clearing history files:", error);
+      }
+
       // Request microphone access
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {

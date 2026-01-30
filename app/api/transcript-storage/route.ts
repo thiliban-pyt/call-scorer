@@ -30,6 +30,33 @@ export async function POST(request: NextRequest) {
     const historyFilePath = path.join(HISTORY_DIR, `${callId}.json`);
 
     switch (action) {
+      case "clear": {
+        // Clear all history files
+        try {
+          const files = await fs.readdir(HISTORY_DIR);
+          await Promise.all(
+            files.map(file => fs.unlink(path.join(HISTORY_DIR, file)))
+          );
+          
+          // Also clear temp files
+          const tempFiles = await fs.readdir(TEMP_DIR);
+          await Promise.all(
+            tempFiles.map(file => fs.unlink(path.join(TEMP_DIR, file)))
+          );
+          
+          return NextResponse.json({
+            success: true,
+            message: "All transcript files cleared",
+          });
+        } catch (error) {
+          console.error("Error clearing files:", error);
+          return NextResponse.json({
+            success: true,
+            message: "Files cleared (or none existed)",
+          });
+        }
+      }
+
       case "append": {
         if (!transcript) {
           return NextResponse.json(
@@ -113,7 +140,7 @@ export async function POST(request: NextRequest) {
 
       default:
         return NextResponse.json(
-          { error: "Invalid action. Use: append, finalize, or get" },
+          { error: "Invalid action. Use: clear, append, finalize, or get" },
           { status: 400 }
         );
     }
