@@ -3,11 +3,18 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { sanitizeHtml } from "@/lib/ai-utils";
 import { Mail } from "lucide-react";
 
 interface DebriefEmailViewerProps {
   htmlContent: string;
+}
+
+// Simple HTML sanitization - strips dangerous tags but keeps basic formatting
+function sanitizeHtml(html: string): string {
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+    .replace(/on\w+="[^"]*"/gi, '');
 }
 
 export function DebriefEmailViewer({ htmlContent }: DebriefEmailViewerProps) {

@@ -60,22 +60,24 @@ function generateCoachingNarrative(emailText: string, chatContext: string): stri
                        emailText.toLowerCase().includes('emirates');
   
   if (isDubaiTrip) {
+    // These are the MUST CONVEY points from the reference document
+    // Each item must be conveyed with exact numbers/details to be marked complete
     return [
-      "Confirm vouchers are live and ready on Pickyourtrail app",
-      "Documents to carry: Original passports + printed copies, flight tickets, hotel vouchers, colored visa copies, travel insurance (if opted)",
-      "Emirates Airlines: 30 kg checked baggage, 7 kg cabin baggage per person",
-      "Hotel check-in: 2 PM | Check-out: 12 PM (early/late not usually available)",
-      "Tourism Dirham Fee: AED 7-20 per room/night - payable on arrival, non-refundable",
-      "Activity timings shared 1 day in advance. Driver numbers 1 hour before pickup",
-      "All transfers are shared basis unless upgraded to private",
-      "Desert Safari & Dhow Cruise: Vegetarian food limited. No dune bashing for infants/seniors/pregnant women",
-      "Burj Khalifa combo ticket: Redeem at counter in Dubai Mall, arrive 30 mins before slot",
-      "BAPS Mandir: Register online 1 day prior at mandir.ae/visit. Passport required. Closed Mondays",
-      "Airport transfers: Driver with name placard in arrivals hall",
-      "Abu Dhabi Airport shuttle to Dubai: Driver meets at XNB Etihad Travel Mall",
-      "Transfer waiting time: Shared 5 mins, Private 10 mins. No stops between",
-      "24/7 live chat on app starts 3 days before trip. No WhatsApp support",
-      "Confirm all questions answered. Available 10 AM - 7 PM for assistance"
+      "Vouchers are live and ready on the Pickyourtrail app",
+      "Documents to carry: Original passports with printed copies, flight tickets, hotel vouchers, colored visa printouts, travel insurance if opted",
+      "Emirates Airlines baggage: 30 kg checked baggage and 7 kg cabin baggage per person",
+      "Hotel check-in time is 2:00 PM and check-out time is 12:00 PM. Early check-in and late checkout usually not available",
+      "Tourism Dirham Fee: AED 7 to AED 20 per room per night, payable on arrival at hotel, non-refundable",
+      "Activity timings will be shared 1 day in advance. Driver numbers shared 1 hour before pickup time",
+      "All transfers are on shared basis unless upgraded to private at extra cost",
+      "Desert Safari and Dhow Cruise: Vegetarian food options are limited. Dune bashing not recommended for infants, senior citizens, or pregnant women",
+      "Burj Khalifa combo ticket: Redeem at Burj Khalifa counter in Dubai Mall. Arrive 30 minutes before your slot time",
+      "BAPS Mandir: Register online 1 day prior at mandir.ae/visit. Carry passport for verification. Closed on Mondays",
+      "Airport arrival: Driver will be in arrivals hall with placard showing your name",
+      "Abu Dhabi Airport shuttle: Driver meets at XNB Etihad Travel Mall in Dubai",
+      "Transfer waiting time: 5 minutes for shared transfers, 10 minutes for private transfers. No stops in between",
+      "24/7 live chat support on app starts 3 days before your trip. No WhatsApp support available",
+      "Contact hours: Available 10 AM to 7 PM for any assistance"
     ];
   }
   

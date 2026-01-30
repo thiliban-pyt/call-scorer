@@ -29,13 +29,6 @@ export function AppHeader({ pageTitle, actionButton }: AppHeaderProps) {
           </h1>
         </div>
 
-        {/* Center: Action Button (if provided) */}
-        {actionButton && (
-          <div className="flex-1 flex justify-center">
-            {actionButton}
-          </div>
-        )}
-
         {/* Right: User Actions */}
         <div className="flex items-center gap-4">
           {/* User Avatar */}

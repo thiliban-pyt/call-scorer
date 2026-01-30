@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CheckCircle2, AlertTriangle, ListTodo, TrendingUp, Clock, ArrowLeft } from "lucide-react";
+import { CheckCircle2, AlertTriangle, ListTodo, TrendingUp, Clock, ArrowLeft, Loader2 } from "lucide-react";
 import type { CallAnalysis } from "@/lib/types";
 import Link from "next/link";
 
@@ -137,26 +137,17 @@ export function CallAnalysisView({ analysis }: CallAnalysisViewProps) {
           <div className="flex items-center gap-2">
             <ListTodo className="h-4 w-4 text-blue-600" />
             <CardTitle className="text-sm font-semibold">Action Items</CardTitle>
-            <Badge variant="secondary" className="text-xs">{analysis.tasks.length}</Badge>
+            <Badge variant="outline" className="animate-pulse border-blue-300 bg-blue-50 text-blue-700 text-xs">
+              Processing...
+            </Badge>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-2 md:grid-cols-2">
-            {analysis.tasks.map((task, index) => (
-              <div key={index} className="rounded-md border border-slate-200 p-3 dark:border-slate-700">
-                <div className="mb-2 flex items-center justify-between">
-                  <Badge variant={task.owner === "Agent" ? "default" : "secondary"} className="text-xs">
-                    {task.owner}
-                  </Badge>
-                  <div className="flex items-center gap-1 text-xs text-slate-500">
-                    <Clock className="h-3 w-3" />
-                    {task.deadline}
-                  </div>
-                </div>
-                <p className="mb-1 text-xs font-semibold">{task.task}</p>
-                <p className="text-xs text-slate-600 dark:text-slate-400">{task.context}</p>
-              </div>
-            ))}
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <Loader2 className="mx-auto h-8 w-8 animate-spin text-blue-500" />
+              <p className="mt-3 text-sm text-slate-500">Analyzing action items...</p>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -167,48 +158,16 @@ export function CallAnalysisView({ analysis }: CallAnalysisViewProps) {
           <div className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4 text-purple-600" />
             <CardTitle className="text-sm font-semibold">Call Insights</CardTitle>
+            <Badge variant="outline" className="animate-pulse border-purple-300 bg-purple-50 text-purple-700 text-xs">
+              Processing...
+            </Badge>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            <div>
-              <p className="mb-1 text-xs font-semibold text-slate-700 dark:text-slate-300">Overall Summary</p>
-              <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                {analysis.insights.overall_summary}
-              </p>
-            </div>
-
-            <div className="grid gap-3 md:grid-cols-2">
-              <div>
-                <p className="mb-1.5 text-xs font-semibold text-green-600\">Positive Highlights</p>
-                <ul className="space-y-1">
-                  {analysis.insights.positive_highlights.map((highlight, index) => (
-                    <li key={index} className="flex items-start gap-2 text-xs">
-                      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" />
-                      <span className="text-slate-700 dark:text-slate-300">{highlight}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <p className="mb-1.5 text-xs font-semibold text-orange-600">Areas of Concern</p>
-                <ul className="space-y-1">
-                  {analysis.insights.areas_of_concern.map((concern, index) => (
-                    <li key={index} className="flex items-start gap-2 text-xs">
-                      <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-orange-600" />
-                      <span className="text-slate-700 dark:text-slate-300">{concern}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <div className="rounded-md border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
-              <p className="text-xs text-slate-700 dark:text-slate-300">
-                <span className="font-semibold">Performance: </span>
-                {analysis.insights.salesperson_performance}
-              </p>
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <Loader2 className="mx-auto h-8 w-8 animate-spin text-purple-500" />
+              <p className="mt-3 text-sm text-slate-500">Generating insights...</p>
             </div>
           </div>
         </CardContent>

@@ -1,42 +1,99 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Phone, PhoneOff } from "lucide-react";
-import { FakeWaveform } from "./fake-waveform";
+import { Phone, PhoneOff, Mic, MicOff, Loader2, Gauge } from "lucide-react";
+import { useCallRecording, ChecklistItem } from "@/lib/useCallRecording";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface SpeechSpeedData {
+  wpm: number;
+  status: "slow" | "good" | "fast" | "too-fast";
+  message: string;
+}
 
 interface CallAnimationProps {
   onComplete: () => void;
+  callId: string;
+  checklistItems: ChecklistItem[];
+  onChecklistUpdate?: (items: ChecklistItem[]) => void;
 }
 
-export function CallAnimation({ onComplete }: CallAnimationProps) {
+export function CallAnimation({
+  onComplete,
+  callId,
+  checklistItems,
+  onChecklistUpdate,
+}: CallAnimationProps) {
   const [callDuration, setCallDuration] = useState(0);
   const [status, setStatus] = useState<"connecting" | "active" | "ending">("connecting");
+  const [speechSpeed, setSpeechSpeed] = useState<SpeechSpeedData | null>(null);
+
+  const {
+    isRecording,
+    isProcessing,
+    transcripts,
+    error,
+    startRecording,
+    stopRecording,
+  } = useCallRecording({
+    callId,
+    checklistItems,
+    onChecklistUpdate,
+  });
+
+  // Calculate speech speed from the latest transcript
+  useEffect(() => {
+    if (transcripts.length === 0) return;
+    
+    const latestTranscript = transcripts[transcripts.length - 1];
+    const wordCount = latestTranscript.text.split(/\s+/).filter(w => w.length > 0).length;
+    
+    const chunkDurationSeconds = 10;
+    const wpm = Math.round((wordCount / chunkDurationSeconds) * 60);
+    
+    let speedStatus: SpeechSpeedData["status"];
+    let message: string;
+    
+    if (wpm < 100) {
+      speedStatus = "slow";
+      message = "Clear pace";
+    } else if (wpm < 140) {
+      speedStatus = "good";
+      message = "Good pace";
+    } else if (wpm < 170) {
+      speedStatus = "fast";
+      message = "Slightly fast";
+    } else {
+      speedStatus = "too-fast";
+      message = "Too fast";
+    }
+    
+    setSpeechSpeed({ wpm, status: speedStatus, message });
+  }, [transcripts]);
 
   useEffect(() => {
-    // Connecting phase (1 second)
     const connectTimer = setTimeout(() => {
       setStatus("active");
+      startRecording();
     }, 1000);
 
-    // Active call duration counter
     const interval = setInterval(() => {
       setCallDuration((prev) => prev + 1);
     }, 1000);
 
-    // Auto end call after 4 seconds
-    const endTimer = setTimeout(() => {
-      setStatus("ending");
-      setTimeout(() => {
-        onComplete();
-      }, 1000);
-    }, 4000);
-
     return () => {
       clearTimeout(connectTimer);
-      clearTimeout(endTimer);
       clearInterval(interval);
     };
-  }, [onComplete]);
+  }, [startRecording]);
+
+  const handleEndCall = async () => {
+    setStatus("ending");
+    await stopRecording();
+    setTimeout(() => {
+      onComplete();
+    }, 1000);
+  };
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -44,119 +101,146 @@ export function CallAnimation({ onComplete }: CallAnimationProps) {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
+  const getSpeedColor = (status: SpeechSpeedData["status"]) => {
+    switch (status) {
+      case "slow": return "text-slate-600 dark:text-slate-400";
+      case "good": return "text-slate-900 dark:text-white";
+      case "fast": return "text-amber-600 dark:text-amber-400";
+      case "too-fast": return "text-red-600 dark:text-red-400";
+    }
+  };
+
   return (
-    <div className="relative flex items-center justify-center py-8">
-      <div className="relative">
-        {/* Pulsing rings */}
-        {status === "active" && (
-          <>
-            <div className="absolute inset-0 animate-ping rounded-full bg-green-500/20" style={{ animationDuration: "2s" }} />
-            <div className="absolute inset-0 animate-ping rounded-full bg-green-500/20" style={{ animationDuration: "2s", animationDelay: "0.5s" }} />
-          </>
-        )}
-        
-        {/* Main card */}
-        <div className="relative rounded-2xl bg-white p-8 shadow-2xl dark:bg-gray-900" style={{ width: "400px" }}>
-          {/* Status indicator */}
-          <div className="mb-6 flex items-center justify-center">
-            <div className={`flex h-24 w-24 items-center justify-center rounded-full ${
-              status === "ending" ? "bg-red-100" : "bg-green-100"
-            }`}>
-              {status === "ending" ? (
-                <PhoneOff className="h-12 w-12 text-red-600" />
-              ) : (
-                <Phone className={`h-12 w-12 text-green-600 ${status === "connecting" ? "animate-pulse" : ""}`} />
-              )}
-            </div>
-          </div>
-
-          {/* Status text */}
-          <div className="mb-6 text-center">
-            <h2 className="mb-2 text-2xl font-bold">
-              {status === "connecting" && "Connecting..."}
-              {status === "active" && "Call in Progress"}
-              {status === "ending" && "Call Ending"}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {status === "connecting" && "Establishing connection with customer"}
-              {status === "active" && "Customer: Travel Booking"}
-              {status === "ending" && "Analyzing call data"}
-            </p>
-          </div>
-
-          {/* Call duration */}
-          {status === "active" && (
-            <div className="mb-6 text-center">
-              <div className="inline-flex items-center gap-2 rounded-full bg-green-50 px-4 py-2 dark:bg-green-950">
-                <div className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
-                <span className="text-lg font-mono font-semibold text-green-700 dark:text-green-300">
-                  {formatDuration(callDuration)}
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* Call stages indicator */}
-          <div className="space-y-2">
-            <div className={`flex items-center gap-3 rounded-lg p-3 ${
-              status === "connecting" || status === "active" || status === "ending" 
-                ? "bg-green-50 dark:bg-green-950" 
-                : "bg-gray-50 dark:bg-gray-800"
-            }`}>
-              <div className={`h-2 w-2 rounded-full ${
-                status === "connecting" || status === "active" || status === "ending"
-                  ? "bg-green-500"
-                  : "bg-gray-300"
+    <div className="space-y-6">
+      {/* Call Status - Clean & Professional */}
+      <div className="text-center">
+        {/* Minimal Call Icon */}
+        <div className="mb-4 inline-flex items-center justify-center">
+          <div className={`relative flex h-20 w-20 items-center justify-center rounded-full border-2 ${
+            status === "ending" 
+              ? "border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950" 
+              : status === "active"
+              ? "border-slate-900 bg-slate-900 dark:border-white dark:bg-white"
+              : "border-slate-300 bg-slate-100 dark:border-slate-700 dark:bg-slate-800"
+          }`}>
+            {status === "ending" ? (
+              <PhoneOff className="h-8 w-8 text-red-600 dark:text-red-400" />
+            ) : (
+              <Phone className={`h-8 w-8 ${
+                status === "active" 
+                  ? "text-white dark:text-slate-900" 
+                  : "text-slate-400"
               }`} />
-              <span className="text-sm">Connection established</span>
-            </div>
-            
-            <div className={`flex items-center gap-3 rounded-lg p-3 ${
-              status === "active" || status === "ending"
-                ? "bg-green-50 dark:bg-green-950" 
-                : "bg-gray-50 dark:bg-gray-800"
-            }`}>
-              <div className={`h-2 w-2 rounded-full ${
-                status === "active" || status === "ending"
-                  ? "bg-green-500 animate-pulse"
-                  : "bg-gray-300"
-              }`} />
-              <span className="text-sm">Call active - Following script</span>
-            </div>
-            
-            <div className={`flex items-center gap-3 rounded-lg p-3 ${
-              status === "ending"
-                ? "bg-blue-50 dark:bg-blue-950" 
-                : "bg-gray-50 dark:bg-gray-800"
-            }`}>
-              <div className={`h-2 w-2 rounded-full ${
-                status === "ending"
-                  ? "bg-blue-500 animate-pulse"
-                  : "bg-gray-300"
-              }`} />
-              <span className="text-sm">Processing analysis...</span>
-            </div>
+            )}
+            {/* Subtle recording indicator */}
+            {status === "active" && isRecording && (
+              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 border-2 border-white dark:border-slate-900" />
+            )}
           </div>
-
-          {/* Fake Waveform - Animated audio visualization */}
-          {status === "active" && (
-            <div className="mt-6">
-              <FakeWaveform isActive={status === "active"} />
-            </div>
-          )}
-          
-          {/* Progress bar for connecting phase */}
-          {status === "connecting" && (
-            <div className="mt-6">
-              <div className="h-1 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                <div 
-                  className="h-full bg-green-500 animate-pulse"
-                />
-              </div>
-            </div>
-          )}
         </div>
+
+        {/* Duration */}
+        <div className="mb-2">
+          <span className="font-mono text-3xl font-light tracking-tight text-slate-900 dark:text-white">
+            {formatDuration(callDuration)}
+          </span>
+        </div>
+
+        {/* Status */}
+        <div className="mb-4 flex items-center justify-center gap-2 text-sm text-slate-500">
+          {status === "connecting" && "Connecting..."}
+          {status === "active" && (
+            <>
+              {isRecording ? (
+                <span className="flex items-center gap-1.5">
+                  <Mic className="h-3.5 w-3.5 text-red-500" />
+                  Recording
+                </span>
+              ) : (
+                <span className="flex items-center gap-1.5">
+                  <MicOff className="h-3.5 w-3.5" />
+                  Paused
+                </span>
+              )}
+              {isProcessing && (
+                <span className="flex items-center gap-1.5 text-slate-400">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  Processing
+                </span>
+              )}
+            </>
+          )}
+          {status === "ending" && "Ending call..."}
+        </div>
+
+        {/* End Call Button */}
+        {status === "active" && (
+          <button
+            onClick={handleEndCall}
+            className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-white px-5 py-2 text-sm font-medium text-red-600 transition-all hover:bg-red-50 hover:border-red-300 dark:border-red-800 dark:bg-slate-900 dark:text-red-400 dark:hover:bg-red-950"
+          >
+            <PhoneOff className="h-4 w-4" />
+            End Call
+          </button>
+        )}
       </div>
+
+      {/* Live Transcript */}
+      <div className="rounded-lg border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900">
+        <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 dark:border-slate-800">
+          <span className="text-xs font-medium uppercase tracking-wider text-slate-500">
+            Transcript
+          </span>
+          <span className="text-xs text-slate-400">
+            {transcripts.length} segments
+          </span>
+        </div>
+        <ScrollArea className="h-[180px]">
+          <div className="p-4">
+            {transcripts.length === 0 ? (
+              <p className="text-center text-sm text-slate-400">
+                {status === "connecting" ? "Connecting..." : "Listening..."}
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {transcripts.map((line, idx) => (
+                  <div key={idx} className="text-sm">
+                    <p className="text-slate-700 dark:text-slate-300">{line.text}</p>
+                    <span className="text-xs text-slate-400">
+                      {new Date(line.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+      </div>
+
+      {/* Speech Speed - Minimal */}
+      {speechSpeed && status === "active" && (
+        <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
+          <div className="flex items-center gap-2 text-slate-500">
+            <Gauge className="h-4 w-4" />
+            <span className="text-xs font-medium uppercase tracking-wider">Speed</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className={`text-sm font-medium ${getSpeedColor(speechSpeed.status)}`}>
+              {speechSpeed.message}
+            </span>
+            <span className="font-mono text-sm font-semibold text-slate-900 dark:text-white">
+              {speechSpeed.wpm} <span className="text-xs text-slate-400">wpm</span>
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Error */}
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-800 dark:bg-red-950 dark:text-red-400">
+          {error}
+        </div>
+      )}
     </div>
   );
 }

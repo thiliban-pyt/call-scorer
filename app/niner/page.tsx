@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
-import { Check, ChevronDown, ChevronUp, Send } from "lucide-react";
+import { Check, Send, Settings2 } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
@@ -64,44 +64,98 @@ const CheckboxItem = ({
   notApplicable, 
   text, 
   onChange, 
-  onNotApplicableChange 
+  onNotApplicableChange,
+  onInternal,
+  onCommunicate
 }: { 
   checked: boolean; 
   notApplicable: boolean; 
   text: string; 
   onChange: () => void;
   onNotApplicableChange: () => void;
-}) => (
-  <div className="flex items-start gap-3 border-b border-slate-100 py-3 last:border-0">
-    <input
-      type="checkbox"
-      checked={checked}
-      onChange={onChange}
-      disabled={notApplicable}
-      className="mt-0.5 h-4 w-4 rounded border-slate-300 text-green-600 focus:ring-green-500 disabled:opacity-50"
-    />
-    <span className={`flex-1 text-sm ${notApplicable ? 'text-slate-400 line-through' : 'text-slate-700'}`}>
-      {text}
-    </span>
-    <button
-      onClick={onNotApplicableChange}
-      className={`text-xs font-medium ${notApplicable ? 'text-orange-600' : 'text-slate-400 hover:text-slate-600'}`}
-    >
-      {notApplicable ? 'N/A' : 'Mark N/A'}
-    </button>
-  </div>
-);
+  onInternal: () => void;
+  onCommunicate: () => void;
+}) => {
+  const [showDropdown, setShowDropdown] = React.useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div className="flex items-start gap-3 border-b border-slate-100 py-3 last:border-0">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        disabled={notApplicable}
+        className="mt-0.5 h-4 w-4 rounded border-slate-300 text-green-600 focus:ring-green-500 disabled:opacity-50"
+      />
+      <span className={`flex-1 text-sm ${notApplicable ? 'text-slate-400 line-through' : 'text-slate-700'}`}>
+        {text}
+      </span>
+      <div className="relative" ref={dropdownRef}>
+        <button
+          onClick={() => setShowDropdown(!showDropdown)}
+          className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+        >
+          <Settings2 className="h-4 w-4" />
+        </button>
+        {showDropdown && (
+          <div className="absolute right-0 z-10 mt-1 w-40 rounded-md border border-slate-200 bg-white shadow-lg">
+            <button
+              onClick={() => {
+                onNotApplicableChange();
+                setShowDropdown(false);
+              }}
+              className="flex w-full items-center px-3 py-2 text-left text-sm hover:bg-slate-50"
+            >
+              <span className={notApplicable ? 'text-orange-600 font-medium' : 'text-slate-700'}>
+                {notApplicable ? '✓ N/A' : 'Mark N/A'}
+              </span>
+            </button>
+            <button
+              onClick={() => {
+                onInternal();
+                setShowDropdown(false);
+              }}
+              className="flex w-full items-center px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+            >
+              Internal Note
+            </button>
+            <button
+              onClick={() => {
+                onCommunicate();
+                setShowDropdown(false);
+              }}
+              className="flex w-full items-center px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+            >
+              Communicate
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const HotelCard = ({ 
   hotel, 
-  isExpanded, 
-  onToggle,
-  onCheckChange
+  onCheckChange,
+  onInternal,
+  onCommunicate
 }: { 
   hotel: any; 
-  isExpanded: boolean; 
-  onToggle: () => void;
   onCheckChange: (hotelId: number, checkId: number, field: 'checked' | 'notApplicable') => void;
+  onInternal: (section: string, id: number) => void;
+  onCommunicate: (section: string, id: number) => void;
 }) => {
   const totalChecks = hotel.checks.length;
   const markedChecks = hotel.checks.filter((c: any) => c.checked || c.notApplicable).length;
@@ -109,10 +163,7 @@ const HotelCard = ({
 
   return (
     <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
-      <div 
-        onClick={onToggle}
-        className="flex cursor-pointer items-start gap-4 p-4 hover:bg-slate-50"
-      >
+      <div className="flex items-start gap-4 border-b border-slate-200 bg-slate-50 p-4">
         {/* Left side - Hotel info */}
         <div className="flex-1">
           <div className="mb-2 flex items-center gap-2">
@@ -138,35 +189,31 @@ const HotelCard = ({
           </div>
         </div>
 
-        {/* Right side - Expand button */}
-        <div className="flex items-center gap-2">
-          <button className="rounded border border-slate-200 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50">
+        {/* Right side - Voucher button */}
+        <div>
+          <button className="rounded border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50">
             Voucher
           </button>
-          {isExpanded ? <ChevronUp className="h-5 w-5 text-slate-400" /> : <ChevronDown className="h-5 w-5 text-slate-400" />}
         </div>
       </div>
 
-      {/* Expanded checks */}
-      {isExpanded && (
-        <div className="border-t border-slate-200 bg-slate-50 p-4">
-          <div className="mb-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
-            {markedChecks}/{totalChecks} Checks Marked
-          </div>
-          <div className="rounded-lg bg-white p-4">
-            {hotel.checks.map((check: any) => (
-              <CheckboxItem
-                key={check.id}
-                checked={check.checked}
-                notApplicable={check.notApplicable}
-                text={check.text}
-                onChange={() => onCheckChange(hotel.id, check.id, 'checked')}
-                onNotApplicableChange={() => onCheckChange(hotel.id, check.id, 'notApplicable')}
-              />
-            ))}
-          </div>
+      {/* Always show checks */}
+      <div className="p-4">
+        <div className="rounded-lg bg-white">
+          {hotel.checks.map((check: any) => (
+            <CheckboxItem
+              key={check.id}
+              checked={check.checked}
+              notApplicable={check.notApplicable}
+              text={check.text}
+              onChange={() => onCheckChange(hotel.id, check.id, 'checked')}
+              onNotApplicableChange={() => onCheckChange(hotel.id, check.id, 'notApplicable')}
+              onInternal={() => onInternal('hotel', check.id)}
+              onCommunicate={() => onCommunicate('hotel', check.id)}
+            />
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 };
@@ -174,7 +221,6 @@ const HotelCard = ({
 export default function NinerPage() {
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState('gen_checks');
-  const [expandedCard, setExpandedCard] = useState<number | null>(null);
   const [ninerData, setNinerData] = useState(mockNinerData);
   const [emailContent, setEmailContent] = useState("");
 
@@ -217,9 +263,25 @@ export default function NinerPage() {
     }));
   };
 
+  const handleInternal = (section: string, id: number) => {
+    alert(`Internal note for ${section} item ${id}`);
+  };
+
+  const handleCommunicate = (section: string, id: number) => {
+    alert(`Communicate with customer about ${section} item ${id}`);
+  };
+
   const handleSendEmail = () => {
     alert("Email sent successfully!");
     router.push("/ao-dashboard");
+  };
+
+  const scrollToSection = (sectionId: string) => {
+    setSelectedTab(sectionId);
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   useEffect(() => {
@@ -265,6 +327,14 @@ export default function NinerPage() {
   const totalGenericChecks = ninerData.genericChecks.length;
   const markedGenericChecks = ninerData.genericChecks.filter(c => c.checked || c.notApplicable).length;
 
+  // Calculate total checks across all sections
+  const allChecks = [
+    ...ninerData.genericChecks,
+    ...ninerData.hotels.flatMap(hotel => hotel.checks)
+  ];
+  const totalChecks = allChecks.length;
+  const markedChecks = allChecks.filter(c => c.checked || c.notApplicable).length;
+
   return (
     <div className="flex h-screen flex-col">
       <style dangerouslySetInnerHTML={{__html: `
@@ -294,42 +364,43 @@ export default function NinerPage() {
       />
       
       <div className="flex flex-1 overflow-hidden">
-        {/* Left: Niner Checks (50%) */}
+        {/* Left: All Niner Checks (50%) */}
         <div className="flex w-1/2 flex-col border-r border-slate-200 bg-white">
-          {/* Tabs */}
-          <div className="flex border-b border-slate-200 px-4">
-            <TabButton active={selectedTab === 'gen_checks'} onClick={() => setSelectedTab('gen_checks')} count={ninerData.genericChecks.length}>
+          {/* Tabs - Click to scroll to section */}
+          <div className="flex overflow-x-auto border-b border-slate-200 px-4">
+            <TabButton active={selectedTab === 'gen_checks'} onClick={() => scrollToSection('gen_checks')} count={ninerData.genericChecks.length}>
               Gen Checks
             </TabButton>
-            <TabButton active={selectedTab === 'hotel'} onClick={() => setSelectedTab('hotel')} count={ninerData.hotels.length}>
+            <TabButton active={selectedTab === 'hotel'} onClick={() => scrollToSection('hotel')} count={ninerData.hotels.length}>
               Hotel
             </TabButton>
-            <TabButton active={selectedTab === 'flight'} onClick={() => setSelectedTab('flight')} count={ninerData.flights.length}>
+            <TabButton active={selectedTab === 'flight'} onClick={() => scrollToSection('flight')} count={ninerData.flights.length}>
               Flight
             </TabButton>
-            <TabButton active={selectedTab === 'pass'} onClick={() => setSelectedTab('pass')} count={ninerData.pass.length}>
+            <TabButton active={selectedTab === 'pass'} onClick={() => scrollToSection('pass')} count={ninerData.pass.length}>
               Pass
             </TabButton>
-            <TabButton active={selectedTab === 'visa'} onClick={() => setSelectedTab('visa')} count={ninerData.visa.length}>
+            <TabButton active={selectedTab === 'visa'} onClick={() => scrollToSection('visa')} count={ninerData.visa.length}>
               Visa
             </TabButton>
-            <TabButton active={selectedTab === 'insurance'} onClick={() => setSelectedTab('insurance')} count={ninerData.insurance.length}>
+            <TabButton active={selectedTab === 'insurance'} onClick={() => scrollToSection('insurance')} count={ninerData.insurance.length}>
               Insurance
             </TabButton>
-            <TabButton active={selectedTab === 'custom'} onClick={() => setSelectedTab('custom')} count={ninerData.custom.length}>
+            <TabButton active={selectedTab === 'custom'} onClick={() => scrollToSection('custom')} count={ninerData.custom.length}>
               Custom
             </TabButton>
           </div>
 
-          {/* Content area */}
+          {/* Scrollable Content area with all sections */}
           <div className="flex-1 overflow-y-auto bg-slate-50 p-4">
-            {selectedTab === 'gen_checks' && (
-              <div className="space-y-4">
-                <div className="mb-4">
-                  <h2 className="text-base font-semibold text-slate-900">Generic Checks</h2>
-                  <p className="text-xs text-slate-500 mt-1">
-                    {markedGenericChecks}/{totalGenericChecks} Checks Marked
-                  </p>
+            <div className="space-y-6">
+              {/* Generic Checks Section */}
+              <div id="gen_checks" className="scroll-mt-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-slate-900">Generic Checks</h3>
+                  <span className="text-xs text-slate-500">
+                    {markedGenericChecks}/{totalGenericChecks} marked
+                  </span>
                 </div>
                 <div className="rounded-lg border border-slate-200 bg-white p-4">
                   {ninerData.genericChecks.map((check) => (
@@ -340,32 +411,65 @@ export default function NinerPage() {
                       text={check.text}
                       onChange={() => handleGenericCheckChange(check.id, 'checked')}
                       onNotApplicableChange={() => handleGenericCheckChange(check.id, 'notApplicable')}
+                      onInternal={() => handleInternal('generic', check.id)}
+                      onCommunicate={() => handleCommunicate('generic', check.id)}
                     />
                   ))}
                 </div>
               </div>
-            )}
 
-            {selectedTab === 'hotel' && (
-              <div className="space-y-4">
-                <h2 className="text-base font-semibold text-slate-900">Hotels</h2>
-                {ninerData.hotels.map((hotel) => (
-                  <HotelCard
-                    key={hotel.id}
-                    hotel={hotel}
-                    isExpanded={expandedCard === hotel.id}
-                    onToggle={() => setExpandedCard(expandedCard === hotel.id ? null : hotel.id)}
-                    onCheckChange={handleCheckChange}
-                  />
-                ))}
-              </div>
-            )}
+              {/* Hotels Section */}
+              {ninerData.hotels.length > 0 && (
+                <div id="hotel" className="scroll-mt-4 space-y-3">
+                  <h3 className="text-sm font-semibold text-slate-900">Hotels</h3>
+                  {ninerData.hotels.map((hotel) => (
+                    <HotelCard
+                      key={hotel.id}
+                      hotel={hotel}
+                      onCheckChange={handleCheckChange}
+                      onInternal={handleInternal}
+                      onCommunicate={handleCommunicate}
+                    />
+                  ))}
+                </div>
+              )}
 
-            {(selectedTab === 'flight' || selectedTab === 'pass' || selectedTab === 'visa' || selectedTab === 'insurance' || selectedTab === 'custom') && (
-              <div className="flex h-full items-center justify-center">
-                <p className="text-sm text-slate-500">No {selectedTab} data available</p>
+              {/* Placeholder sections */}
+              <div id="flight" className="scroll-mt-4">
+                <h3 className="text-sm font-semibold text-slate-900 mb-3">Flights</h3>
+                <div className="rounded-lg border border-slate-200 bg-white p-8 text-center">
+                  <p className="text-sm text-slate-400">No flight data available</p>
+                </div>
               </div>
-            )}
+
+              <div id="pass" className="scroll-mt-4">
+                <h3 className="text-sm font-semibold text-slate-900 mb-3">Pass</h3>
+                <div className="rounded-lg border border-slate-200 bg-white p-8 text-center">
+                  <p className="text-sm text-slate-400">No pass data available</p>
+                </div>
+              </div>
+
+              <div id="visa" className="scroll-mt-4">
+                <h3 className="text-sm font-semibold text-slate-900 mb-3">Visa</h3>
+                <div className="rounded-lg border border-slate-200 bg-white p-8 text-center">
+                  <p className="text-sm text-slate-400">No visa data available</p>
+                </div>
+              </div>
+
+              <div id="insurance" className="scroll-mt-4">
+                <h3 className="text-sm font-semibold text-slate-900 mb-3">Insurance</h3>
+                <div className="rounded-lg border border-slate-200 bg-white p-8 text-center">
+                  <p className="text-sm text-slate-400">No insurance data available</p>
+                </div>
+              </div>
+
+              <div id="custom" className="scroll-mt-4">
+                <h3 className="text-sm font-semibold text-slate-900 mb-3">Custom</h3>
+                <div className="rounded-lg border border-slate-200 bg-white p-8 text-center">
+                  <p className="text-sm text-slate-400">No custom data available</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

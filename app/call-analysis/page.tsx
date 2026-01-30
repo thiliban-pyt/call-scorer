@@ -1,29 +1,79 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { CallAnalysisView } from "@/components/call-analysis-view";
 import { mockCallAnalysis } from "@/lib/mock-analysis";
 import type { CallAnalysis } from "@/lib/types";
 import { Loader2 } from "lucide-react";
 
-export default function CallAnalysisPage() {
+function CallAnalysisContent() {
+  const searchParams = useSearchParams();
   const [analysis, setAnalysis] = useState<CallAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate AI processing
+    // Get data from URL params (passed from call page)
+    const checklistDataParam = searchParams.get('checklist');
+    
     const processAnalysis = async () => {
       setIsLoading(true);
       
-      // Simulate AI API delay
+      // Simulate AI processing delay
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      setAnalysis(mockCallAnalysis);
+      // If we have checklist data from the call, use it
+      if (checklistDataParam) {
+        try {
+          const checklistItems = JSON.parse(decodeURIComponent(checklistDataParam));
+          
+          // Calculate compliance from actual call data
+          const totalItems = checklistItems.length;
+          const completedItems = checklistItems.filter((item: any) => item.completed);
+          const missedItems = checklistItems.filter((item: any) => !item.completed);
+          
+          const percentage = Math.round((completedItems.length / totalItems) * 100);
+          const rating = percentage >= 90 ? "Excellent" : percentage >= 70 ? "Good" : "Needs Improvement";
+          
+          // Build analysis with real data
+          const realAnalysis: CallAnalysis = {
+            ...mockCallAnalysis,
+            compliance_score: {
+              percentage,
+              rating,
+              total_mandatory_items: totalItems,
+              items_conveyed: completedItems.length,
+              items_missed: missedItems.length
+            },
+            conveyed_items: completedItems.map((item: any, idx: number) => ({
+              category: "Checklist",
+              item: item.text,
+              quote: `Mentioned during the call`,
+              timestamp: `00:${String(idx * 15).padStart(2, '0')}`
+            })),
+            missed_items: missedItems.map((item: any) => ({
+              category: "Checklist",
+              item: item.text,
+              importance: "High",
+              recommendation: "Include this in follow-up communication"
+            }))
+          };
+          
+          setAnalysis(realAnalysis);
+        } catch (error) {
+          console.error("Error parsing checklist data:", error);
+          setAnalysis(mockCallAnalysis);
+        }
+      } else {
+        // No data from call, use mock
+        setAnalysis(mockCallAnalysis);
+      }
+      
       setIsLoading(false);
     };
 
     processAnalysis();
-  }, []);
+  }, [searchParams]);
 
   if (isLoading) {
     return (
@@ -43,5 +93,19 @@ export default function CallAnalysisPage() {
         {analysis && <CallAnalysisView analysis={analysis} />}
       </div>
     </div>
+  );
+}
+
+export default function CallAnalysisPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-slate-600" />
+        </div>
+      }
+    >
+      <CallAnalysisContent />
+    </Suspense>
   );
 }
