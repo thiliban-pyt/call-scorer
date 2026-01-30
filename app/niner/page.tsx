@@ -89,22 +89,28 @@ const CheckboxItem = ({
     }
   };
 
+  const getDropdownStyle = () => {
+    switch (selectedAction) {
+      case 'na':
+        return 'bg-orange-50 border-orange-200 text-orange-700';
+      case 'internal':
+        return 'bg-blue-50 border-blue-200 text-blue-700';
+      case 'communicate':
+        return 'bg-purple-50 border-purple-200 text-purple-700';
+      default:
+        return 'bg-white border-slate-300 text-slate-600';
+    }
+  };
+
   return (
     <div className="flex items-start gap-3 border-b border-slate-100 py-3 last:border-0">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-        disabled={notApplicable}
-        className="mt-0.5 h-4 w-4 rounded border-slate-300 text-green-600 focus:ring-green-500 disabled:opacity-50"
-      />
       <span className={`flex-1 text-sm ${notApplicable ? 'text-slate-400 line-through' : 'text-slate-700'}`}>
         {text}
       </span>
       <select
         value={selectedAction}
         onChange={(e) => handleActionChange(e.target.value)}
-        className="rounded border border-slate-300 px-2 py-1 text-xs text-slate-600 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
+        className={`rounded-md px-3 py-2 text-xs font-medium border transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 ${getDropdownStyle()}`}
       >
         <option value="">Select Action</option>
         <option value="na">Mark N/A</option>
@@ -233,15 +239,15 @@ export default function NinerPage() {
   };
 
   const handleInternal = (section: string, id: number) => {
-    alert(`Internal note for ${section} item ${id}`);
+    console.log(`Internal note for ${section} item ${id}`);
   };
 
   const handleCommunicate = (section: string, id: number) => {
-    alert(`Communicate with customer about ${section} item ${id}`);
+    console.log(`Communicate with customer about ${section} item ${id}`);
   };
 
   const handleSendEmail = () => {
-    alert("Email sent successfully!");
+    console.log("Email sent successfully!");
     router.push("/ao-dashboard");
   };
 
@@ -256,7 +262,7 @@ export default function NinerPage() {
   useEffect(() => {
     const loadTemplate = async () => {
       try {
-        const response = await fetch('/email-template.html');
+        const response = await fetch('/LakshmiDesiganTemplate.html');
         const html = await response.text();
         
         const parser = new DOMParser();
