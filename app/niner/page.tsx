@@ -221,6 +221,7 @@ export default function NinerPage() {
       )
     }));
   };
+console.log(emailContent);
 
   const handleGenericCheckChange = (checkId: number, field: 'checked' | 'notApplicable') => {
     setNinerData(prev => ({
@@ -262,7 +263,7 @@ export default function NinerPage() {
   useEffect(() => {
     const loadTemplate = async () => {
       try {
-        const response = await fetch('/LakshmiDesiganTemplate.html');
+        const response = await fetch('/email-template.html');
         const html = await response.text();
         
         const parser = new DOMParser();
