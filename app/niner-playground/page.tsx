@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { AppHeader } from "@/components/app-header";
-import { Loader2, Sparkles, Upload, FileJson, Plane, Hotel, MapPin, Calendar, Clock, Utensils, Image as ImageIcon } from "lucide-react";
+import { Loader2, Sparkles, Upload, FileJson, Plane, Hotel, MapPin, Calendar, Clock, Utensils, Image as ImageIcon, Settings, Plus, Trash2, X } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ItineraryData {
   name?: string;
@@ -56,6 +58,19 @@ export default function NinerPlayground() {
   const [generatedItems, setGeneratedItems] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Modal state
+  const [isConfigOpen, setIsConfigOpen] = useState(false);
+  const [customItems, setCustomItems] = useState<string[]>([]);
+  const [newItemText, setNewItemText] = useState("");
+  const [selectedRegion, setSelectedRegion] = useState("Dubai");
+  const [templateItems, setTemplateItems] = useState([
+    "Check Passports, Custom Cards etc",
+    "Verify passenger count (adults, children, infants)",
+    "Check for Amenities - Breakfast/Wifi/Elevator/Air conditioning",
+    "Twin beds should not be given for couples. Check and place email request for Double beds",
+    "City tax/Caution deposit communicated to Customer"
+  ]);
 
   // Auto-load iti.json on mount
   useEffect(() => {
@@ -99,28 +114,31 @@ export default function NinerPlayground() {
     loadItinerary();
   }, []);
 
-  const existingNinerItems = [
-    "Check Passports, Custom Cards etc",
-    "Verify passenger count (adults, children, infants)",
-    "Does the itinerary planning and city routing need additional/unnecessary travel?",
-    "Check for Amenities - Breakfast/Wifi/Elevator/Air conditioning",
-    "Twin beds should not be given for couples. Check and place email request for Double beds",
-    "If room size lesser than 190 Sq ft - Communicate to customer",
-    "Hotel check-in dates to be checked with Flight booking and itinerary",
-    "If hotel is not in city centre - Booking to be amended or communicated",
-    "If bathroom type is shared - Booking to be amended or communicated",
-    "City tax/Caution deposit communicated to Customer",
-    "Baggage allowance clearly stated",
-    "Visa requirements and processing times",
-    "Travel insurance coverage details",
-    "Activity pickup times and meeting points",
-    "Meal inclusions and dietary restrictions",
-    "Cancellation and refund policies",
-    "Emergency contact numbers",
-    "Currency exchange information",
-    "Local customs and etiquette",
-    "Weather conditions and packing suggestions"
-  ];
+  const regions = ["Dubai", "Europe", "Asia", "Americas", "Africa", "Oceania"];
+
+  const addCustomItem = () => {
+    if (newItemText.trim()) {
+      setCustomItems([...customItems, newItemText.trim()]);
+      setNewItemText("");
+    }
+  };
+
+  const removeCustomItem = (index: number) => {
+    setCustomItems(customItems.filter((_, i) => i !== index));
+  };
+
+  const removeTemplateItem = (index: number) => {
+    setTemplateItems(templateItems.filter((_, i) => i !== index));
+  };
+
+  const addTemplateItem = () => {
+    const newItem = prompt("Enter new template item:");
+    if (newItem && newItem.trim()) {
+      setTemplateItems([...templateItems, newItem.trim()]);
+    }
+  };
+
+  const existingNinerItems = templateItems;
 
   // Activity ID to name mapping
   const activityNames: Record<number, string> = {
@@ -212,31 +230,45 @@ export default function NinerPlayground() {
           </div>
 
           <ScrollArea className="flex-1 px-6 py-4">
-            {parsedItinerary && parsedItinerary.itineraryBlocks && parsedItinerary.itineraryBlocks.length > 0 ? (
+            {error ? (
+              <div className="flex h-full items-center justify-center">
+                <div className="max-w-md text-center">
+                  <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
+                    <p className="text-sm font-semibold text-red-900">Failed to Load</p>
+                    <p className="mt-2 text-xs text-red-700">{error}</p>
+                  </div>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="text-sm text-slate-600 hover:text-slate-900"
+                  >
+                    Refresh page
+                  </button>
+                </div>
+              </div>
+            ) : parsedItinerary && parsedItinerary.itineraryBlocks && parsedItinerary.itineraryBlocks.length > 0 ? (
               <div className="space-y-6 pr-3">
-                {/* Trip Images */}
-                {parsedItinerary.resortImages && parsedItinerary.resortImages.length > 0 && (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <ImageIcon className="h-4 w-4 text-slate-600" />
-                      <h3 className="text-sm font-semibold text-slate-900">Trip Gallery</h3>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      {parsedItinerary.resortImages.slice(0, 4).map((img, idx) => (
-                        <div key={idx} className="relative aspect-video overflow-hidden rounded-lg border border-slate-200">
-                          <img 
-                            src={img} 
-                            alt={`Trip image ${idx + 1}`}
-                            className="h-full w-full object-cover"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f1f5f9" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" font-family="sans-serif" font-size="14" fill="%2394a3b8" text-anchor="middle" dominant-baseline="middle"%3EImage unavailable%3C/text%3E%3C/svg%3E';
-                            }}
-                          />
+                {/* Trip Overview */}
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                  <div className="flex items-start gap-3">
+                    <MapPin className="h-5 w-5 text-blue-600 mt-0.5" />
+                    <div>
+                      <h3 className="text-sm font-semibold text-slate-900">Trip Overview</h3>
+                      <p className="mt-1 text-xs text-slate-600">
+                        {parsedItinerary.userSearchDetail?.minDays || parsedItinerary.userSearchDetail?.maxDays} days in{' '}
+                        {parsedItinerary.userSearchDetail?.region || 'Dubai'}
+                      </p>
+                      {parsedItinerary.cityHotelStay && parsedItinerary.cityHotelStay.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {parsedItinerary.cityHotelStay.map((hotel, idx) => (
+                            <Badge key={idx} variant="secondary" className="text-xs">
+                              {hotel.cityName}
+                            </Badge>
+                          ))}
                         </div>
-                      ))}
+                      )}
                     </div>
                   </div>
-                )}
+                </div>
 
                 {/* Hotel Details */}
                 {parsedItinerary.cityHotelStay && parsedItinerary.cityHotelStay.length > 0 && (
@@ -347,6 +379,30 @@ export default function NinerPlayground() {
                   }
                   return null;
                 })}
+
+                {/* Trip Images */}
+                {parsedItinerary.resortImages && parsedItinerary.resortImages.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <ImageIcon className="h-4 w-4 text-slate-600" />
+                      <h3 className="text-sm font-semibold text-slate-900">Trip Gallery</h3>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {parsedItinerary.resortImages.slice(0, 4).map((img, idx) => (
+                        <div key={idx} className="relative aspect-video overflow-hidden rounded-lg border border-slate-200">
+                          <img 
+                            src={img} 
+                            alt={`Trip image ${idx + 1}`}
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f1f5f9" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" font-family="sans-serif" font-size="14" fill="%2394a3b8" text-anchor="middle" dominant-baseline="middle"%3EImage unavailable%3C/text%3E%3C/svg%3E';
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex h-full items-center justify-center">
@@ -401,13 +457,22 @@ export default function NinerPlayground() {
             <div className="space-y-4 pr-3">
               {/* Existing Items Reference */}
               <div>
-                <div className="mb-3 flex items-center gap-2">
-                  <FileJson className="h-4 w-4 text-slate-600" />
-                  <h3 className="text-sm font-semibold text-slate-900">Standard Template</h3>
-                  <Badge variant="secondary" className="text-xs">{existingNinerItems.length} items</Badge>
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <FileJson className="h-4 w-4 text-slate-600" />
+                    <h3 className="text-sm font-semibold text-slate-900">Standard Template</h3>
+                    <Badge variant="secondary" className="text-xs">{existingNinerItems.length + customItems.length} items</Badge>
+                  </div>
+                  <button
+                    onClick={() => setIsConfigOpen(true)}
+                    className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                    title="Configure niner items"
+                  >
+                    <Settings className="h-4 w-4" />
+                  </button>
                 </div>
                 <div className="space-y-1.5">
-                  {existingNinerItems.slice(0, 8).map((item, index) => (
+                  {existingNinerItems.map((item, index) => (
                     <div
                       key={index}
                       className="flex items-start gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs"
@@ -416,11 +481,17 @@ export default function NinerPlayground() {
                       <span className="text-slate-700">{item}</span>
                     </div>
                   ))}
-                  {existingNinerItems.length > 8 && (
-                    <div className="px-3 py-2 text-center text-xs text-slate-400">
-                      +{existingNinerItems.length - 8} more items
+                  {/* Custom Items */}
+                  {customItems.map((item, index) => (
+                    <div
+                      key={`custom-${index}`}
+                      className="flex items-start gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-xs"
+                    >
+                      <span className="font-medium text-blue-600">{existingNinerItems.length + index + 1}.</span>
+                      <span className="flex-1 text-slate-700">{item}</span>
+                      <Badge variant="outline" className="text-xs border-blue-300 text-blue-700">Custom</Badge>
                     </div>
-                  )}
+                  ))}
                 </div>
               </div>
 
@@ -459,6 +530,160 @@ export default function NinerPlayground() {
           </ScrollArea>
         </div>
       </div>
+
+      {/* Configuration Modal */}
+      <Dialog open={isConfigOpen} onOpenChange={setIsConfigOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle>Configure Niner Checklist</DialogTitle>
+            <DialogDescription>
+              Customize your niner items, select region, and manage templates
+            </DialogDescription>
+          </DialogHeader>
+
+          <Tabs defaultValue="custom" className="flex-1 overflow-hidden flex flex-col">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="custom">Custom Items</TabsTrigger>
+              <TabsTrigger value="region">Region</TabsTrigger>
+              <TabsTrigger value="template">Edit Template</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="custom" className="flex-1 overflow-auto mt-4">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-slate-900">Add Custom Niner Item</label>
+                  <div className="mt-2 flex gap-2">
+                    <input
+                      type="text"
+                      value={newItemText}
+                      onChange={(e) => setNewItemText(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && addCustomItem()}
+                      placeholder="e.g., Check travel insurance coverage"
+                      className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    />
+                    <button
+                      onClick={addCustomItem}
+                      className="flex items-center gap-1 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Add
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-slate-900">
+                    Your Custom Items ({customItems.length})
+                  </h4>
+                  {customItems.length === 0 ? (
+                    <p className="text-xs text-slate-500 py-8 text-center border border-dashed border-slate-300 rounded-md">
+                      No custom items yet. Add your first one above!
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {customItems.map((item, index) => (
+                        <div
+                          key={index}
+                          className="flex items-start gap-2 rounded-md border border-slate-200 bg-slate-50 p-3"
+                        >
+                          <span className="flex-1 text-sm text-slate-700">{item}</span>
+                          <button
+                            onClick={() => removeCustomItem(index)}
+                            className="text-slate-400 hover:text-red-600"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="region" className="flex-1 overflow-auto mt-4">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-slate-900">Select Target Region</label>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Choose the primary region for this itinerary to customize relevant checks
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  {regions.map((region) => (
+                    <button
+                      key={region}
+                      onClick={() => setSelectedRegion(region)}
+                      className={`rounded-lg border-2 p-4 text-left transition-all ${
+                        selectedRegion === region
+                          ? 'border-blue-600 bg-blue-50'
+                          : 'border-slate-200 bg-white hover:border-slate-300'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <MapPin className={`h-4 w-4 ${selectedRegion === region ? 'text-blue-600' : 'text-slate-400'}`} />
+                        <span className={`font-medium ${selectedRegion === region ? 'text-blue-900' : 'text-slate-900'}`}>
+                          {region}
+                        </span>
+                      </div>
+                      {selectedRegion === region && (
+                        <Badge className="mt-2 bg-blue-600">Selected</Badge>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="template" className="flex-1 overflow-auto mt-4">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-medium text-slate-900">Template Items</h4>
+                    <p className="text-xs text-slate-500 mt-1">Edit or remove default checklist items</p>
+                  </div>
+                  <button
+                    onClick={addTemplateItem}
+                    className="flex items-center gap-1 rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    <Plus className="h-3 w-3" />
+                    Add Item
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  {templateItems.map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex items-start gap-2 rounded-md border border-slate-200 bg-slate-50 p-3"
+                    >
+                      <span className="text-xs font-medium text-slate-400 mt-0.5">{index + 1}.</span>
+                      <span className="flex-1 text-sm text-slate-700">{item}</span>
+                      <button
+                        onClick={() => removeTemplateItem(index)}
+                        className="text-slate-400 hover:text-red-600"
+                        title="Remove item"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+
+          <DialogFooter className="mt-4">
+            <button
+              onClick={() => setIsConfigOpen(false)}
+              className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+            >
+              Done
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

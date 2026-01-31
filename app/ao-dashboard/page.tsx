@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Phone, Mail, MoreVertical, ChevronRight, FlaskConical } from "lucide-react";
+import { Phone, Mail, MoreVertical, ChevronRight, FlaskConical, TrendingUp, Users, CheckCircle2, Clock } from "lucide-react";
 import { mockBriefingCalls } from "@/lib/mock-calls";
 import { useRouter } from "next/navigation";
 import type { BriefingCall } from "@/lib/types";
@@ -42,26 +42,48 @@ export default function AODashboardPage() {
   const overdueCalls = mockBriefingCalls.filter(call => isDueDatePassed(call.followUpDate));
   const upcomingCalls = mockBriefingCalls.filter(call => !isDueDatePassed(call.followUpDate));
 
+  // Stats calculation
+  const totalTasks = mockBriefingCalls.length;
+  const completedTasks = mockBriefingCalls.filter(call => call.status === "Won").length;
+  const bookedTasks = mockBriefingCalls.filter(call => call.status === "Booked").length;
+  const todoTasks = mockBriefingCalls.filter(call => call.status === "Todo").length;
+
   return (
     <>
       <AppHeader pageTitle="AO Dashboard" />
       
       <div className="flex h-screen flex-col bg-slate-50">
-        {/* Header with Playground Link */}
-        <div className="border-b border-slate-200 bg-white px-6 py-3">
+        {/* Header */}
+        <div className="border-b border-slate-200 bg-white px-6 py-5">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-900">Tasks Overview</h2>
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-xl font-semibold text-slate-900">
+                  AO Dashboard
+                </h1>
+                <Badge variant="outline" className="text-xs font-medium">
+                  PYT Hacks - Team 5
+                </Badge>
+              </div>
+              <p className="mt-1 text-sm text-slate-500">Manage customer briefing calls and tasks</p>
+            </div>
             <button
               onClick={() => router.push("/niner-playground")}
-              className="flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+              className="flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
             >
               <FlaskConical className="h-4 w-4" />
               Niner Playground
             </button>
           </div>
         </div>
-        {/* Table */}
+
+        {/* Tasks Section */}
         <div className="flex-1 overflow-auto p-6">
+          <div className="mb-4">
+            <h2 className="text-base font-semibold text-slate-900">Tasks Overview</h2>
+            <p className="text-sm text-slate-500">{totalTasks} total tasks • {todoTasks} pending • {completedTasks} completed</p>
+          </div>
+          
           <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
             <table className="w-full">
               <thead className="bg-slate-50">

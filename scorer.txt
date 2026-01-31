@@ -1,0 +1,285 @@
+{
+    "_id" : ObjectId("692e9cb5fd297292f309cca8"),
+    "tracker_id" : 82470,
+    "transcription_id" : 79626,
+    "type" : "call_scorer",
+    "info" : {
+        "executive_summary" : "The call demonstrated a solid performance in establishing rapport and gathering essential information from the customer. However, there were some communication issues and a lack of clarity in the agent's responses, which affected the overall flow of the conversation.",
+        "overall_score" : "75/100",
+        "grade" : "B",
+        "customer_sentiment" : "Neutral",
+        "parameter_breakdown" : [ 
+            {
+                "parameter" : "Brand",
+                "score" : 80,
+                "weight" : "40%",
+                "performance" : "The agent mentioned the brand's reputation and experience but lacked clarity in communication.",
+                "rubric" : [ 
+                    {
+                        "question" : "Said Pickyourtrail is India's No 1 holiday company, and spoke about 150,000+ customers till date",
+                        "score" : "2",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Stated presence of physical stores or city-specific advisors",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Mentioned 4.7+ customer rating and a decade of experience planning holidays",
+                        "score" : "1",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Mentioned testimonials and proactively offered to send links on WhatsApp",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Explained app-based customization for itinerary and quotes, Mentioned real-time edit, activity/date toggle, or app convenience",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Tone was confident, fluent, and sounded like an expert",
+                        "score" : "2",
+                        "scoring_scale" : "3"
+                    }
+                ]
+            }, 
+            {
+                "parameter" : "Destination",
+                "score" : 40,
+                "weight" : "0%",
+                "performance" : "Limited information was provided about the destination specifics.",
+                "rubric" : [ 
+                    {
+                        "question" : "Explained e-visa process, couriering physical passport, and timelines",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Mentioned hotel size (avg 150 - 170 sq ft) and expectation setting",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Clarified location areas like Little India, Tyrwhitt and transfer convenience",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Set clear expectations for shared vs private transfers, punctuality, no wait policy",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Built realistic plan for 4N/5D trip based on flight arrival and activity durations",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Mentioned city tour is mostly photostops and how to plan around it",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Explained Indian veg food availability and convenience",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Explained early morning arrival issue vs 3pm check-in expectation",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Mentioned Universal Studios as full-day + Express Pass suggestion",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Explained Sentosa clusters, cable car entry, dolphin show/tiers",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Shared Wings of Time light show format and best time (sunset+)",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Clarified Flower Dome vs Cloud Forest combos, light show inclusion confusion",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Set expectations on low-light safari, nature format, ride timings",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Explained SEA Aquarium highlights and optional add-ons like touch pool, shows",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }
+                ]
+            }, 
+            {
+                "parameter" : "Sales",
+                "score" : 70,
+                "weight" : "17%",
+                "performance" : "The agent effectively gathered customer information and discussed potential plans but could improve on clarity and engagement.",
+                "rubric" : [ 
+                    {
+                        "question" : "Are you open to other destinations",
+                        "score" : "2",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "How soon are you looking to book",
+                        "score" : "2",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Asked occasion/purpose of travel - why this holiday",
+                        "score" : "1",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Asked travel dates and flexibility",
+                        "score" : "2",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Captured budget with clarity",
+                        "score" : "2",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Captured passenger count, age group, relation",
+                        "score" : "2",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "How did you get to know about us",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Are your flights booked, if the customer is serious",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Is this your first international trip",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Captured past travel behavior/preferences",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Call opened with greeting and name",
+                        "score" : "2",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Regional language used where relevant",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Congratulated for occasion or trip",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Did not interrupt; active listening",
+                        "score" : "1",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Call closed with next steps + timeline",
+                        "score" : "2",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Used affirmations or fillers to signal listening",
+                        "score" : "1",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Repeated/rephrased customer ask, Clarified ambiguities instead of assuming",
+                        "score" : "1",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Highlighted trade-offs or mismatches",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Summarized itinerary fit mid or end call",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Asked detailed questions about experience preference",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Used follow-ups to go deeper (e.g. meals, flights)",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Used open-ended questions to explore needs",
+                        "score" : "1",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Set expectations clearly (visa, hotel size, etc)",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Self booking vs other agents vs pickyourtrail - depending on customer preference of selfbooking vs local agent",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Handled price/brand objections calmly",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }, 
+                    {
+                        "question" : "Reframed concern or gave alternate value",
+                        "score" : "0",
+                        "scoring_scale" : "3"
+                    }
+                ]
+            }
+        ],
+        "areas_for_improvement" : [ 
+            "Improve clarity in communication to avoid confusion.", 
+            "Provide more detailed information about destinations and itineraries.", 
+            "Enhance active listening skills to ensure customer needs are fully understood."
+        ],
+        "what_went_well" : [ 
+            "Established rapport with the customer.", 
+            "Gathered essential information regarding travel plans and preferences.", 
+            "Provided a recommendation based on climate and travel conditions."
+        ],
+        "action_items" : [ 
+            "Practice clear and concise communication techniques.", 
+            "Prepare a standard information sheet for destinations to enhance knowledge.", 
+            "Engage in active listening training to improve customer interaction."
+        ]
+    },
+    "created_at" : ISODate("2025-12-02T08:00:53.822Z"),
+    "updated_at" : ISODate("2025-12-02T08:00:53.822Z")
+}

@@ -32,9 +32,9 @@ export async function POST(request: NextRequest) {
       messages: [
         {
           role: "system",
-          content: `You are a travel operations expert. Analyze the provided itinerary and generate a comprehensive list of "Niner Check" items - critical points that MUST be communicated to the customer to avoid surprises, complaints, or issues during their trip.
+          content: `You are a travel operations expert. Analyze the provided itinerary and generate EXACTLY 5 critical "Niner Check" items - the most important points that MUST be communicated to the customer to avoid surprises, complaints, or issues during their trip.
 
-Focus on:
+Focus on the TOP 5 most critical items from:
 1. Hotel policies (check-in times, deposits, taxes, amenities, room types, location)
 2. Flight details (baggage allowance, layovers, meal inclusions)
 3. Activity restrictions (age limits, fitness requirements, timing)
@@ -46,7 +46,7 @@ Focus on:
 9. Contact information and support hours
 10. Special requirements or restrictions
 
-Return ONLY a JSON array of strings, each string being one check item. Be specific and actionable. Format: ["Check item 1", "Check item 2", ...]`
+Return ONLY a JSON array of EXACTLY 5 strings, each string being one check item. Be specific and actionable. Format: ["Check item 1", "Check item 2", "Check item 3", "Check item 4", "Check item 5"]`
         },
         {
           role: "user",

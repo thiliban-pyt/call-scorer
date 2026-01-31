@@ -148,17 +148,26 @@ export function CallAnalysisView({ analysis }: CallAnalysisViewProps) {
           <div className="flex items-center gap-2">
             <ListTodo className="h-4 w-4 text-blue-600" />
             <CardTitle className="text-sm font-semibold">Action Items</CardTitle>
-            <Badge variant="outline" className="animate-pulse border-blue-300 bg-blue-50 text-blue-700 text-xs">
-              Processing...
-            </Badge>
+            <Badge variant="secondary" className="text-xs">{analysis.tasks.length}</Badge>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <Loader2 className="mx-auto h-8 w-8 animate-spin text-blue-500" />
-              <p className="mt-3 text-sm text-slate-500">Analyzing action items...</p>
-            </div>
+          <div className="space-y-2">
+            {analysis.tasks.map((task, index) => (
+              <div key={index} className="rounded-md border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
+                <div className="mb-1 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">
+                      {task.owner}
+                    </Badge>
+                    <span className="text-xs text-slate-500">{task.deadline}</span>
+                  </div>
+                  <Clock className="h-3.5 w-3.5 text-slate-400" />
+                </div>
+                <p className="mb-1 text-xs font-medium">{task.task}</p>
+                <p className="text-xs text-slate-600 dark:text-slate-400">{task.context}</p>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
@@ -169,16 +178,41 @@ export function CallAnalysisView({ analysis }: CallAnalysisViewProps) {
           <div className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4 text-purple-600" />
             <CardTitle className="text-sm font-semibold">Call Insights</CardTitle>
-            <Badge variant="outline" className="animate-pulse border-purple-300 bg-purple-50 text-purple-700 text-xs">
-              Processing...
-            </Badge>
+            <Badge variant="secondary" className="text-xs">{analysis.insights.call_quality}</Badge>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <Loader2 className="mx-auto h-8 w-8 animate-spin text-purple-500" />
-              <p className="mt-3 text-sm text-slate-500">Generating insights...</p>
+          <div className="space-y-4">
+            {/* Summary */}
+            <div className="rounded-md border border-purple-200 bg-purple-50 p-3 dark:border-purple-900 dark:bg-purple-950/30">
+              <p className="text-xs font-medium text-purple-900 dark:text-purple-100">Overall Summary</p>
+              <p className="mt-1 text-xs text-slate-700 dark:text-slate-300">{analysis.insights.overall_summary}</p>
+            </div>
+
+            {/* Positive Highlights */}
+            <div>
+              <p className="mb-2 text-xs font-semibold text-green-700 dark:text-green-400">✓ Positive Highlights</p>
+              <div className="space-y-1">
+                {analysis.insights.positive_highlights.map((highlight, index) => (
+                  <div key={index} className="flex items-start gap-2 rounded-md bg-green-50 px-3 py-1.5 dark:bg-green-950/30">
+                    <CheckCircle2 className="mt-0.5 h-3 w-3 flex-shrink-0 text-green-600" />
+                    <p className="text-xs text-slate-700 dark:text-slate-300">{highlight}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Areas of Concern */}
+            <div>
+              <p className="mb-2 text-xs font-semibold text-orange-700 dark:text-orange-400">⚠ Areas of Concern</p>
+              <div className="space-y-1">
+                {analysis.insights.areas_of_concern.map((concern, index) => (
+                  <div key={index} className="flex items-start gap-2 rounded-md bg-orange-50 px-3 py-1.5 dark:bg-orange-950/30">
+                    <AlertTriangle className="mt-0.5 h-3 w-3 flex-shrink-0 text-orange-600" />
+                    <p className="text-xs text-slate-700 dark:text-slate-300">{concern}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </CardContent>
