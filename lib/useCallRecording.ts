@@ -11,6 +11,7 @@ export interface ChecklistItem {
   id: string;
   text: string;
   completed: boolean;
+  section: string;
 }
 
 interface UseCallRecordingOptions {
